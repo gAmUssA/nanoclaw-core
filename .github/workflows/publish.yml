@@ -20,6 +20,8 @@ jobs:
     uses: ./.github/workflows/test.yml
 
   publish:
+    # Forks must not publish into the upstream Tessl namespace.
+    if: github.repository_owner == 'jbaruch'
     needs: gate
     permissions:
       id-token: write
