@@ -20,7 +20,7 @@ Silence means success. Text means there's something worth saying. (Acknowledgeme
 
 - A scheduled or maintenance wake (a cadence precheck, a scheduled task) has no inbound user message.
 - Its "silent success" is zero output: no `send_message`, no emoji, no reaction, no streamed text.
-- An acknowledgement emoji is only ever a reaction on an inbound user message. It is never a standalone `send_message`, in any context.
+- Send an acknowledgement emoji only as a reaction to an inbound user message, never through `send_message`.
 
 ## Not-for-me messages
 
