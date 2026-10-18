@@ -1,5 +1,9 @@
 # Changelog
 
+### default-silence — scheduled wakes emit nothing; an emoji ack is never a message (jbaruch/nanoclaw-travel#321)
+
+A deduped flight-assist wake on 2026-09-25 sent a standalone `✈️` via `send_message`. The agent had read "silence means success" plus the emoji-ack habit as license for a content-free ping, and the owner got `[M] ✈️`. Any maintenance skill that reaches a no-op branch could do the same. The rule now says a scheduled or maintenance wake has no inbound message, so its silent success is zero output, and an acknowledgement emoji is only ever a reaction on an inbound user message, never a standalone `send_message`. `core-behavior.md` Async Tasks now scopes its acknowledgement reaction to tasks that answer an inbound user message, so the two rules agree.
+
 ## 0.1.146 — 2026-09-23
 
 ### Trim the current-tz description; move the shared-reader rule into the body (#965 sibling)
