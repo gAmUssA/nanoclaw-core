@@ -16,6 +16,12 @@ If you catch yourself about to write any of these — stop. Use `<internal>` tag
 
 Silence means success. Text means there's something worth saying. (Acknowledgement reactions are now emitted by the `react-first` runtime hook — the agent does not need to call `react_to_message` itself for first-touch acknowledgement.)
 
+## Scheduled wakes
+
+- A scheduled or maintenance wake (a cadence precheck, a scheduled task) has no inbound user message.
+- Its "silent success" is zero output: no `send_message`, no emoji, no reaction, no streamed text.
+- Send an acknowledgement emoji only as a reaction to an inbound user message, never through `send_message`.
+
 ## Not-for-me messages
 
 **Scope: passive/solo chats only.** The rest of this section does NOT apply when you're in a triggered chat.
