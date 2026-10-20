@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.1.153 — 2026-10-20
+
+### default-silence — a Jev-passed message is the agent's call (#116)
+
+jbaruch/nanoclaw#1017 put a Jev relevance gate at the end of every non-main chat's gate chain. A reply to the assistant, an @-mention of its handles, its name as a word or the chat's trigger pattern still wakes it outright. Everything else gets a Jev score, and a message at or above the chat's threshold (0.5 triggered, 0.25 untriggered) reaches the agent with no trigger at all. The rule still said a triggered chat delivers only triggered messages, so "not for me" was no category there and the agent had to respond. On 2026-10-19 the operator pasted a long status update into a triggered group; Jev scored it 0.54, and the agent spent 318 seconds squaring the rule with a message that had no trigger before it stayed silent, correctly but against the rule.
+
+The rule now reads how a message arrived from the message itself, since the prompt carries no gate verdict. The main chat and direct address (a private 1:1 chat included) are for the agent. Anything else in a non-main chat was passed by Jev: the agent decides, and silence is valid once it has worked out what made the message look relevant. An untriggered chat expects the assistant to take part; in a triggered chat it joins only when staying out would clearly be a miss. During a Jev outage an untriggered chat delivers everything unscored and a triggered one only direct address, so "anything else was passed by Jev" holds only while Jev is up. The runtime's `react-first` 👀 has been addressed-only since jbaruch/nanoclaw#289, so a not-for-me message carries no runtime reaction; `telegram-protocol.md` now says so too, and the zero-output rule forbids only reactions of the agent's own. A Jev-passed message the agent answers has no 👀 to upgrade, so its first reaction is the agent's: the 👍 `core-behavior.md` Async Tasks asks for before a long task. Operator direction on #116 (2026-10-19).
+
+## 0.1.151 — 2026-10-18
+
+### default-silence — scheduled wakes emit nothing; an emoji ack is never a message (jbaruch/nanoclaw-travel#321)
+
+A deduped flight-assist wake on 2026-09-25 sent a standalone `✈️` via `send_message`. The agent had read "silence means success" plus the emoji-ack habit as license for a content-free ping, and the owner got `[M] ✈️`. Any maintenance skill that reaches a no-op branch could do the same. The rule now says a scheduled or maintenance wake has no inbound message, so its silent success is zero output, and an acknowledgement emoji is only ever a reaction on an inbound user message, never a standalone `send_message`. `core-behavior.md` Async Tasks now scopes its acknowledgement reaction to tasks that answer an inbound user message, so the two rules agree.
+
+## 0.1.146 — 2026-09-23
+
+### Trim the current-tz description; move the shared-reader rule into the body (#965 sibling)
+
+`current-tz` description 486→353 B. The skill listing rides the prompt on every interactive turn while SKILL.md bodies load only on invocation, and `current-tz` appears in 6 session trees, so its description multiplies. The `resolved from their live location, with no home-zone guessing` clause is redundant with the `instead of … home_tz` clause that stays, and with Step 1's `The script never guesses` contract. The `single shared reader; do not copy the script into another plugin` rule was description-only — it moves into the body rather than being dropped, so the rule survives where the agent reads it.
+
+## 0.1.144 — 2026-09-13
+
+### Skill — `current-tz` review advisories from `jbaruch/nanoclaw-core#103` (`#104`)
+
+Three findings the #103 review deferred as advisory, folded in together rather than one round each.
+
+`SUPPORTED_TZ_STATE_SCHEMA_VERSION`'s comment described a ceiling ("Highest ... this reader interprets", "a higher version means a shape this reader doesn't understand") while the code has always been strict equality — a *lower* `schema_version` degrades to unavailable too, which is what a non-owner reader owes under `jbaruch/coding-policy: stateful-artifacts`. The comment now states the equality contract.
+
+`test_unreadable_store_raises` and `test_main_exits_1_when_store_unreadable` both claimed to cover "no tz_state table" while pointing `DB_PATH` at a file that does not exist — one operational failure asserted twice under two names. Each is now named for the case it actually drives (`test_missing_store_file_raises`, `test_main_exits_1_when_store_file_missing`), and the table-missing failure gets its own pair against an empty SQLite file that opens as a database and then has no `tz_state` in it. Both exit-1 paths the docstrings promised are now genuinely exercised; the new main-level case asserts the `no such table` diagnostic reaches stderr.
+
+`SKILL.md` Step 2's `available: false` bullet carried three directives — the phrasing fallback, the scheduling fallback, and the `home_tz` prohibition — against `jbaruch/coding-policy: context-writing-style` Structure. Split one directive per bullet. The adjacent `available: true` and exit-`1` bullets had the same defect and split with it.
+
 ## 0.1.143 — 2026-09-09
 
 ### Skill — `current-tz`, the one shared reader of the operator's zone (`jbaruch/nanoclaw#951` follow-up)

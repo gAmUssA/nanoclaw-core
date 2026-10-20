@@ -20,7 +20,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = REPO_ROOT / "skills/now-vs-deadline/scripts/now-vs-deadline.py"
 
-UTC = datetime.timezone.utc
+UTC = datetime.UTC
 
 # The AA487 repro from jbaruch/nanoclaw-core#51: at 13:10:50 UTC the
 # alert declared the 15:00 UTC (11:00 EDT) Hertz pickup "already
