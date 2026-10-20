@@ -24,13 +24,26 @@ Silence means success. Text means there's something worth saying. (Acknowledgeme
 
 ## Not-for-me messages
 
-**Scope: passive/solo chats only.** The rest of this section does NOT apply when you're in a triggered chat.
+- A message that is not for you gets zero output from you: no text, no tool call, no reaction, not even `<internal>` tags
+- The runtime's `react-first` 👀 fires only on a message addressed to you (see `rules/telegram-protocol.md`)
+- Narrating the non-decision in any form (prose, a parenthetical, asterisks, «Молчу») IS the leak
+- Whether a message can be "not for me" depends on how it reached you (see How a message reached you)
 
-- **Triggered chats** (the `registered_groups` row has `requires_trigger=1`, which is the default for registered groups): the orchestrator only routes a user message to you when the trigger pattern matches — mention, trigger word, reply, or quote. If you received a message in a triggered chat, the user deliberately engaged you. **"Not for me" is not a category here — respond.** Even if the content looks like small talk, an off-hand comment, or a rhetorical question: the explicit trigger means "I want you in this." Staying silent is the leak; responding is the baseline. The silence-leak phrases above are still forbidden (they're bad style in any response), but the decision "respond or not" is already made — by the user, via the trigger, not by you.
-- **Passive / solo chats** (`requires_trigger=0`, or personal chats where the orchestrator routes every message for observation): this is the only context where "not for me" is a real category, and where the rest of this section applies.
+## How a message reached you
 
-In those passive contexts, when a message is not addressed to you — **produce zero output**. Not a single character. Not even `<internal>` tags (those still count as processing time). Every form of narrating-the-non-decision (prose explanation, parenthetical aside, asterisk-narrated silence, single-word "Молчу") IS the leak. The correct output is literally nothing — no tool calls, no text, no reactions. Just stop.
+The prompt carries no gate verdict. Read it from the message itself.
 
-## How to know which chat you're in
+- **Main chat:** every message routes to you and every message is for you
+- **Addressed directly** in any other chat: a reply to one of your messages, an @-mention of your handle, your name as a word, or the chat's trigger pattern. Respond; "not for me" does not apply
+- **A private 1:1 chat with the assistant** counts as addressed directly
+- **While Jev is available**, anything else in a non-main chat is a message Jev's relevance gate passed (`src/gates/relevance.ts` in `jbaruch/nanoclaw`)
+- **During a Jev outage**, an untriggered chat delivers every message unscored; a delivered message there proves nothing about relevance
+- **During a Jev outage**, a triggered chat delivers only direct address
+- A message not addressed directly is your call, and zero output is a valid outcome
+- Before staying silent on it, work out what made it look relevant: a question to the room you can answer, something about you or your work, a topic you own
 
-You don't have to read config to know — the routing itself is the signal. If you received a message AND you're in a registered group, you can treat the engagement as established. Solo/personal chats route everything; group chats with a trigger configured only route engaged messages. When in doubt, err toward responding — a small extra reply is recoverable; a dropped deliberate engagement reads as the assistant being broken. The authoritative per-chat `requires_trigger` value lives in the SQLite `registered_groups` table (shared `messages.db`); the per-group `/workspace/ipc/available_groups.json` view is derivative and incomplete.
+## Triggered and untriggered chats
+
+- **Untriggered chat** (`requires_trigger=0`): join a message not addressed to you when you have something useful to add
+- **Triggered chat** (`requires_trigger=1`, the default for registered groups): join a message not addressed to you only when staying out would clearly be a miss
+- The authoritative `requires_trigger` value lives in the SQLite `registered_groups` table (shared `messages.db`); `/workspace/ipc/available_groups.json` is derivative and incomplete
