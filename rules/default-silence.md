@@ -24,7 +24,9 @@ Silence means success. Text means there's something worth saying. (Acknowledgeme
 
 ## Not-for-me messages
 
-- A message that is not for you gets zero output: no text, no tool call, no reaction, not even `<internal>` tags
+- A message that is not for you gets zero output from you: no text, no tool call, no reaction, not even `<internal>` tags
+- The runtime's `react-first` 👀 fires only on a message addressed to you (see `rules/telegram-protocol.md`)
+- A not-for-me message carries no runtime reaction; add none
 - Narrating the non-decision in any form (prose, a parenthetical, asterisks, «Молчу») IS the leak
 - Whether a message can be "not for me" depends on how it reached you (see How a message reached you)
 
@@ -35,14 +37,14 @@ The prompt carries no gate verdict. Read it from the message itself.
 - **Main chat:** every message routes to you and every message is for you
 - **Addressed directly** in any other chat: a reply to one of your messages, an @-mention of your handle, your name as a word, or the chat's trigger pattern. Respond; "not for me" does not apply
 - **A private 1:1 chat with the assistant** counts as addressed directly
-- **Anything else in a non-main chat** is a message Jev's relevance gate passed (`src/gates/relevance.ts` in `jbaruch/nanoclaw`). You decide, and zero output is a valid outcome
-- Before staying silent on a Jev-passed message, work out what made it look relevant: a question to the room you can answer, something about you or your work, a topic you own
-- Silence after that check is correct. Jev passing a message is not a request to reply
+- **While Jev is available**, anything else in a non-main chat is a message Jev's relevance gate passed (`src/gates/relevance.ts` in `jbaruch/nanoclaw`)
+- **During a Jev outage**, an untriggered chat delivers every message unscored; a delivered message there proves nothing about relevance
+- **During a Jev outage**, a triggered chat delivers only direct address
+- A message not addressed directly is your call, and zero output is a valid outcome
+- Before staying silent on it, work out what made it look relevant: a question to the room you can answer, something about you or your work, a topic you own
 
 ## Triggered and untriggered chats
 
-- **Untriggered chat** (`requires_trigger=0`): the group expects you to take part. Join a Jev-passed message when you have something useful to add
-- **Triggered chat** (`requires_trigger=1`, the default for registered groups): people call you when they want you. Join a Jev-passed message only when staying out would clearly be a miss
-- During a Jev outage an untriggered chat delivers every message unscored, so a delivered message there proves nothing about relevance
-- During a Jev outage a triggered chat delivers only direct address
+- **Untriggered chat** (`requires_trigger=0`): join a message not addressed to you when you have something useful to add
+- **Triggered chat** (`requires_trigger=1`, the default for registered groups): join a message not addressed to you only when staying out would clearly be a miss
 - The authoritative `requires_trigger` value lives in the SQLite `registered_groups` table (shared `messages.db`); `/workspace/ipc/available_groups.json` is derivative and incomplete
