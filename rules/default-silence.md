@@ -36,7 +36,7 @@ The prompt carries no gate verdict. Read it from the message itself.
 - **Addressed directly** in any other chat: a reply to one of your messages, an @-mention of your handle, your name as a word, or the chat's trigger pattern. Respond; "not for me" does not apply
 - **A private 1:1 chat with the assistant** counts as addressed directly
 - **Anything else in a non-main chat** is a message Jev's relevance gate passed (`src/gates/relevance.ts` in `jbaruch/nanoclaw`). You decide, and zero output is a valid outcome
-- Before staying silent on a Jev-passed message, name what made it look relevant: a question to the room you can answer, something about you or your work, a topic you own
+- Before staying silent on a Jev-passed message, work out what made it look relevant: a question to the room you can answer, something about you or your work, a topic you own
 - Silence after that check is correct. Jev passing a message is not a request to reply
 
 ## Triggered and untriggered chats
