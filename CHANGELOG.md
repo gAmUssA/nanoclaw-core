@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.1.153 — 2026-10-20
+
 ### default-silence — a Jev-passed message is the agent's call (#116)
 
 jbaruch/nanoclaw#1017 put a Jev relevance gate at the end of every non-main chat's gate chain. A reply to the assistant, an @-mention of its handles, its name as a word or the chat's trigger pattern still wakes it outright. Everything else gets a Jev score, and a message at or above the chat's threshold (0.5 triggered, 0.25 untriggered) reaches the agent with no trigger at all. The rule still said a triggered chat delivers only triggered messages, so "not for me" was no category there and the agent had to respond. On 2026-10-19 the operator pasted a long status update into a triggered group; Jev scored it 0.54, and the agent spent 318 seconds squaring the rule with a message that had no trigger before it stayed silent, correctly but against the rule.
