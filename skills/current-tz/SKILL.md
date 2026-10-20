@@ -1,11 +1,13 @@
 ---
 name: current-tz
-description: Read the operator's current IANA timezone from the host-owned `tz_state` singleton, resolved from their live location, with no home-zone guessing. Use when a skill needs the zone the operator is in right now — phrasing "today" / "tomorrow", picking the parse zone for a "remind me at 8am" reminder, deciding whether a local time has passed — instead of the container clock, `home_tz`, or a hand-written SQL read. The single shared reader; do not copy the script into another plugin.
+description: Read the operator's current IANA timezone from the host-owned `tz_state` singleton. Use when a skill needs the zone the operator is in right now — phrasing "today" / "tomorrow", picking the parse zone for a "remind me at 8am" reminder, deciding whether a local time has passed — instead of the container clock, `home_tz`, or a hand-written SQL read.
 ---
 
 # current-tz Skill
 
 Process steps in order. Do not skip ahead.
+
+This skill is the single shared reader for the operator's current zone. Call it; do not copy `skills/current-tz/scripts/read-current-tz.py` into another plugin.
 
 ## Step 1 — Read the operator's current zone
 
@@ -22,8 +24,12 @@ Exit codes: `0` — the store was read and `available` is the answer. `1` — th
 
 ## Step 2 — Act on the result
 
-- `available: true` → use `local_now` and `local_date` as the operator's wall clock and date; pass `tz` to any script that converts another instant.
-- `available: false` on exit `0` → a phrasing surface falls back to explicit dates (no relative words, no warning marker); a scheduling caller that must pick a zone uses the container `$TZ`. Never read `home_tz` as a stand-in for where the operator is.
-- Exit `1` → a scheduling caller treats it as a hard failure and surfaces the stderr diagnostic; a phrasing surface degrades as for `available: false`.
+- `available: true` → use `local_now` and `local_date` as the operator's wall clock and date.
+- `available: true` → pass `tz` to any script that converts another instant.
+- `available: false` on exit `0`, phrasing surface → fall back to explicit dates, no relative words and no warning marker.
+- `available: false` on exit `0`, scheduling caller that must pick a zone → use the container `$TZ`.
+- Exit `1`, scheduling caller → treat it as a hard failure and surface the stderr diagnostic.
+- Exit `1`, phrasing surface → degrade as for `available: false`.
+- Never read `home_tz` as a stand-in for where the operator is.
 
 Finish here.
