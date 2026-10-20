@@ -26,7 +26,6 @@ Silence means success. Text means there's something worth saying. (Acknowledgeme
 
 - A message that is not for you gets zero output from you: no text, no tool call, no reaction, not even `<internal>` tags
 - The runtime's `react-first` 👀 fires only on a message addressed to you (see `rules/telegram-protocol.md`)
-- A not-for-me message carries no runtime reaction; add none
 - Narrating the non-decision in any form (prose, a parenthetical, asterisks, «Молчу») IS the leak
 - Whether a message can be "not for me" depends on how it reached you (see How a message reached you)
 
