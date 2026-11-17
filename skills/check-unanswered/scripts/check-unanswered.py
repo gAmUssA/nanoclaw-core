@@ -61,7 +61,8 @@ def encoded(value):
 
 def candidates(conn, chat, now):
     """Read-only host schema; batch queries at 50 rows, oldest first."""
-    offset = 0
+    cursor_time = None
+    cursor_id = ""
     while True:
         rows = conn.execute(
             """
@@ -80,19 +81,22 @@ def candidates(conn, chat, now):
                 SELECT 1 FROM reactions r WHERE r.message_chat_jid = m.chat_jid
                   AND r.message_id = m.id AND r.reactor_jid = 'bot@telegram'
               )
-            ORDER BY julianday(m.timestamp), m.id LIMIT 50 OFFSET ?
+              AND (? IS NULL OR (julianday(m.timestamp), m.id) > (julianday(?), ?))
+            ORDER BY julianday(m.timestamp), m.id LIMIT 50
             """,
             (
                 chat,
                 (now - timedelta(hours=24)).isoformat(),
                 (now - timedelta(seconds=60)).isoformat(),
-                offset,
+                cursor_time,
+                cursor_time,
+                cursor_id,
             ),
         ).fetchall()
         yield from rows
         if len(rows) < 50:
             return
-        offset += 50
+        cursor_time, cursor_id = rows[-1]["timestamp"], rows[-1]["id"]
 
 
 def evidence(conn, chat, candidate):

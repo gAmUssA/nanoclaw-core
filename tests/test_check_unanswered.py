@@ -537,3 +537,16 @@ def test_invalid_seen_choice_is_unavailable_before_classification(
     assert "seen-state JSON" in captured.err
     assert module.STATE_PATH.read_bytes() == original
     ask.assert_not_called()
+
+
+def test_reaction_between_pages_does_not_skip_the_next_candidate(checker):
+    module, conn = checker
+    for index in range(51):
+        message(conn, f"{index:03}")
+    candidates = module.candidates(conn, CHAT, NOW)
+    first = next(candidates)
+    conn.execute("INSERT INTO reactions VALUES (?, ?, ?)", (first["id"], CHAT, "bot@telegram"))
+    conn.commit()
+    assert [first["id"], *[row["id"] for row in candidates]] == [
+        f"{index:03}" for index in range(51)
+    ]
