@@ -4,35 +4,21 @@ alwaysApply: true
 
 # Temporal Awareness
 
-Before any proactive action — reminder, alert, message, suggestion — ground yourself in time first.
+## Time and Context
 
-## The check (before every proactive action)
+- Before scheduling/firing reminders, heartbeat/email alerts, proactive messages/suggestions or framing events as past/present/future, check UTC, owner's local time, calendar and travel context.
+- Assess action window, ability, awareness and timing. If clearly useless, stay silent; if uncertain, weigh usefulness versus noise.
+- Compute past/future, deadlines and remaining time via `Skill(skill: "now-vs-deadline")`; resolve a timezone-aware instant first, follow its location-agnostic verdict, never eyeball.
 
-1. **What time is it?** Know the current UTC time and the owner's local time. The owner's zone comes from the `current-tz` skill's script (`skills/current-tz/scripts/read-current-tz.py`), which reads the host-resolved `tz_state.current_tz`; never from the container clock or a hand-written SQL read. When traveling, these differ from the server timezone. Don't assume.
+## Scoped current-zone script contract
 
-2. **What's happening right now?** Use calendar and travel context. Is the owner in-flight? In a meeting? Asleep? Between events? A thing that made sense to schedule at 7am may not make sense to fire at noon if circumstances changed.
+- Use `jbaruch/nanoclaw-core`'s regular target `/home/node/.claude/skills/tessl__current-tz/scripts/read-current-tz.py`; never container clock, handwritten SQL, copied reader or caller-selected path.
+- Production: no arguments/input; no `--now` clock substitution.
+- JSON stdout: `available,tz,local_now,local_date`. Usable: `true`, valid IANA zone and local instant/date. Unavailable: `false`, null projection fields. Failed reads grant no zone. Docstring owns exits/diagnostics. Consumers retain unavailable/error handling required by their own workflow.
+- Detail: `/home/node/.claude/skills/tessl__current-tz/references/temporal-awareness.md`.
+- No timezone-write, scheduling, model, owner or delivery authority; no exception to later checks.
 
-3. **Does this action still make sense given #1 and #2?**
-   - Is the action window still open? (e.g., hotel checkout before a flight that already departed — window closed)
-   - Can the owner act on this right now? (in-flight = can't check out of a hotel)
-   - Is it obvious they already know? (traveling to a conference = they checked out)
-   - Is the timing appropriate? (work alert at 3am local time = probably not)
+## Runtime owner
 
-## Past vs future — compute it, don't eyeball it
-
-Any determination of *past vs future*, *deadline elapsed*, or *still time to act* MUST be computed against the real current instant via the `now-vs-deadline` helper — never asserted from prose judgment. Resolve the deadline to a timezone-aware instant first (do the offset conversion, e.g. `11:00 EDT` → `15:00 UTC`), then run the `now-vs-deadline` skill and act on its verdict rather than your own read of the clock. The comparison is instant-only and location-agnostic.
-
-## This is reasoning, not rules
-
-Don't look for a matching rule. Ask: *"If I were a human assistant who knew the owner's full schedule right now, would I reach out about this at this moment?"*
-
-If clearly no — don't. If uncertain — think about what a useful message would look like versus noise.
-
-## Applies to
-
-- Scheduled reminders (before scheduling AND before firing)
-- Heartbeat alerts and email flags
-- Any proactive message or suggestion
-- Framing events as past/present/future ("upcoming", "just happened", "still time to act")
-
-LLMs default to treating all information as equally present-tense. Explicitly compensate: check the clock, check the context, then act.
+- `jbaruch/nanoclaw`'s `src/db-tz.ts` writes `tz_state` in `/workspace/store/messages.db`. Schema: `src/state-migrations/state-010-tz-state.schema.md`; migrations there: `state-010-tz-state.ts`, `state-012-tz-state-segments.ts`, `state-013-tz-state-segments-datetime.ts`, `state-015-tz-state-stale-warning.ts`.
+- Select only `current_tz,schema_version` at `id=1`; accept only record version4, nonblank valid IANA zone. Missing row, unsupported version or invalid zone is unavailable. Host alone migrates; reader never rewrites/upgrades.
