@@ -1,5 +1,49 @@
 # Changelog
 
+## 0.1.169 — 2026-11-17
+
+- fix(default-silence): answer the harness nudge in one line (#142)
+
+## 0.1.168 — 2026-11-17
+
+- chore(deps): make Renovate the only dependency scanner (#140)
+
+## 0.1.167 — 2026-11-17
+
+- chore(deps): bump ruff from 0.17.3 to 0.17.5 (#128)
+
+## 0.1.166 — 2026-11-17
+
+- fix(query-history): refuse on missing legacy tables (#138)
+
+## 0.1.165 — 2026-11-17
+
+- docs(check-unanswered): say messages go to the Jev classifier (#137)
+
+## 0.1.164 — 2026-11-17
+
+- fix: address verifier findings (rules-core) (#130)
+
+## 0.1.163 — 2026-11-16
+
+- perf(check-unanswered): find drops with Jev before waking Claude (#131)
+
+## 0.1.162 — 2026-11-15
+
+- chore: refresh the Tessl-generated ignore block (#133)
+
+## 0.1.157 — 2026-10-29
+
+### Declare the current-zone reader contract for script consumers
+
+Extend the existing temporal-awareness authority with the co-shipped current-tz target, production input, output and regression contract needed by the waiting-on-owner consumer (nanoclaw-admin#625). Keep the reader, its readonly state access, manifest, clock behavior and existing runtime rules unchanged. Lookup grants no new runtime authority or fallback permission.
+
+## 0.1.155 — 2026-10-23
+
+### Remove agent progress messages; preserve answers after mid-turn sends (#119)
+
+The host suppresses final text after a successful message or file send. The progress-update rule could trigger that suppression before the actual answer. Remove the rule and its manifest/README entries. Core behavior forbids agent progress messages in every tier and requires subsequent answers through `send_message` after a mid-turn send. Owner-only host previews remain tracked in jbaruch/nanoclaw#1099.
+
 ## 0.1.153 — 2026-10-20
 
 ### default-silence — a Jev-passed message is the agent's call (#116)
